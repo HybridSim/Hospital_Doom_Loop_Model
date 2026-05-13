@@ -95,13 +95,13 @@ h1{
 <body>
 
 <header>
-<h1>HOSPITAL DOOM LOOP MODEL</h1>
+<h1>Hospital Doom Loop Model</h1>
 
 <div class="toolbar">
-<button id="run" class="btn">▶ RUN</button>
-<button id="pause" class="btn" disabled>⏸ PAUSE</button>
-<button id="reset" class="btn">⟲ RESET</button>
-<div id="yearLabel"><strong>YEAR: 2000</strong></div>
+<button id="run" class="btn">▶ Run</button>
+<button id="pause" class="btn" disabled>⏸ Pause</button>
+<button id="reset" class="btn">⟲ Reset</button>
+<div id="yearLabel"><strong>Year: 2000</strong></div>
 </div>
 </header>
 
@@ -110,49 +110,49 @@ h1{
 <div class="controls">
 
 <div class="control">
-<label>BASELINE ELECTIVE CAPACITY</label>
+<label>Baseline Elective Capacity</label>
 <input id="baselineElectiveCapacity" type="range" min="50" max="600" step="1" value="267">
 <div class="val" id="baselineElectiveCapacityVal">267</div>
 </div>
 
 <div class="control">
-<label>BED CAPACITY</label>
+<label>Bed Capacity</label>
 <input id="bedCapacity" type="range" min="1000" max="12000" step="100" value="5600">
 <div class="val" id="bedCapacityVal">5600</div>
 </div>
 
 <div class="control">
-<label>BASELINE EMERGENCY ADMISSIONS</label>
+<label>Baseline Emergency Admissions</label>
 <input id="baselineEmergencyAdmissions" type="range" min="10" max="200" step="1" value="60">
 <div class="val" id="baselineEmergencyAdmissionsVal">60</div>
 </div>
 
 <div class="control">
-<label>BASELINE LENGTH OF STAY</label>
+<label>Baseline Length Of Stay</label>
 <input id="baselineLOS" type="range" min="5" max="60" step="0.1" value="23">
 <div class="val" id="baselineLOSVal">23</div>
 </div>
 
 <div class="control">
-<label>COMPLEXITY SENSITIVITY</label>
+<label>Complexity Sensitivity</label>
 <input id="complexitySensitivity" type="range" min="0" max="2" step="0.01" value="0.35">
 <div class="val" id="complexitySensitivityVal">0.35</div>
 </div>
 
 <div class="control">
-<label>SAFE OCCUPANCY</label>
+<label>Safe Occupancy</label>
 <input id="safeOccupancy" type="range" min="0.5" max="1" step="0.01" value="0.85">
 <div class="val" id="safeOccupancyVal">0.85</div>
 </div>
 
 <div class="control">
-<label>COVID PRODUCTIVITY LOSS</label>
+<label>Covid Productivity Loss</label>
 <input id="covidProductivityLoss" type="range" min="0" max="1" step="0.01" value="0">
 <div class="val" id="covidProductivityLossVal">0</div>
 </div>
 
 <div class="control">
-<label>PROJECTION END YEAR</label>
+<label>Projection End Year</label>
 <input id="endYear" type="range" min="2005" max="2050" step="1" value="2050">
 <div class="val" id="endYearVal">2050</div>
 </div>
@@ -201,7 +201,6 @@ function getParams(){
 
   return {
 
-    // BASE PARAMETERS
     BASELINE_ELECTIVE_CAPACITY:+$("baselineElectiveCapacity").value,
     BASELINE_ELECTIVE_WAIT:450,
     BASELINE_EMERGENCY_ADMISSIONS:+$("baselineEmergencyAdmissions").value,
@@ -211,12 +210,10 @@ function getParams(){
 
     BED_CAPACITY:+$("bedCapacity").value,
 
-    // BURNOUT
     BURNOUT_BUILD_TIME:240,
     BURNOUT_IMPACT_ON_THROUGHPUT:0.6,
     BURNOUT_RECOVERY_TIME:540,
 
-    // COMPLEXITY
     COMPLEXITY_SENSITIVITY:+$("complexitySensitivity").value,
 
     CONGESTION_IMPACT_ON_THROUGHPUT:1,
@@ -262,7 +259,6 @@ function simulate(){
 
   const finalTime = (p.END_YEAR - 2000) * 365;
 
-  // STOCKS
   let acuteInpatients = p.INITIAL_ACUTE_INPATIENTS;
   let dischargeReadyPatients = p.INITIAL_DISCHARGE_READY_PATIENTS;
   let burnout = p.INITIAL_BURNOUT;
@@ -271,7 +267,6 @@ function simulate(){
   let residualComplexityIncrease = p.COVID_COMPLEXITY_INCREASE;
   let residualProductivityLoss = p.COVID_PRODUCTIVITY_LOSS;
 
-  // SAVE SERIES
   let t=[];
 
   let occupiedBedsSeries=[];
@@ -281,10 +276,7 @@ function simulate(){
   let occupancySeries=[];
   let admissionsSeries=[];
 
-  // DAILY SIMULATION EXACTLY LIKE VENSIM
   for(let time=0; time<=finalTime; time+=p.TIME_STEP){
-
-    // AUXILIARIES
 
     const pandemicEffectOnComplexity =
       1 + residualComplexityIncrease;
@@ -431,7 +423,6 @@ function simulate(){
         p.SAFE_OCCUPANCY
       );
 
-    // FLOW ADJUSTMENTS
     const adjustedDischargeReadiness =
       dischargeReadiness *
       throughputEffectOfBurnout *
@@ -450,7 +441,6 @@ function simulate(){
       residualProductivityLoss /
       p.TIME_TO_RECOVER;
 
-    // STOCK UPDATES
     acuteInpatients =
       acuteInpatients +
       (
@@ -491,7 +481,6 @@ function simulate(){
         -productivityRecovery
       ) * p.TIME_STEP;
 
-    // SAVE EVERY DAY
     t.push(2000 + time/365);
 
     occupiedBedsSeries.push(occupiedBeds);
@@ -529,7 +518,7 @@ function plotPartial(index){
     mode:"lines",
     line:{width:2}
   }], {
-    title:"OCCUPIED BEDS",
+    title:"Occupied Beds",
     margin:{t:40,l:50,r:10,b:40}
   });
 
@@ -539,7 +528,7 @@ function plotPartial(index){
     mode:"lines",
     line:{width:2}
   }], {
-    title:"ELECTIVE WAIT TIME",
+    title:"Elective Wait Time",
     margin:{t:40,l:50,r:10,b:40}
   });
 
@@ -549,7 +538,7 @@ function plotPartial(index){
     mode:"lines",
     line:{width:2}
   }], {
-    title:"BURNOUT",
+    title:"Burnout",
     margin:{t:40,l:50,r:10,b:40}
   });
 
@@ -559,7 +548,7 @@ function plotPartial(index){
     mode:"lines",
     line:{width:2}
   }], {
-    title:"AVERAGE LENGTH OF STAY",
+    title:"Average Length Of Stay",
     margin:{t:40,l:50,r:10,b:40}
   });
 
@@ -569,7 +558,7 @@ function plotPartial(index){
     mode:"lines",
     line:{width:2}
   }], {
-    title:"OCCUPANCY PRESSURE",
+    title:"Occupancy Pressure",
     margin:{t:40,l:50,r:10,b:40}
   });
 
@@ -579,13 +568,13 @@ function plotPartial(index){
     mode:"lines",
     line:{width:2}
   }], {
-    title:"TOTAL ADMISSIONS",
+    title:"Total Admissions",
     margin:{t:40,l:50,r:10,b:40}
   });
 
   if(index>0){
     $("yearLabel").innerHTML =
-      "<strong>YEAR: " +
+      "<strong>Year: " +
       Math.floor(t[t.length-1]) +
       "</strong>";
   }
@@ -635,7 +624,7 @@ function reset(){
   plotPartial(10);
 
   $("yearLabel").innerHTML =
-    "<strong>YEAR: 2000</strong>";
+    "<strong>Year: 2000</strong>";
 }
 
 $("run").addEventListener("click",run);
