@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,153 +10,101 @@
 
 <style>
 
+:root{
+  --plot-h:220px;
+}
+
 body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#f5f5f5;
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#ffffff;
 }
 
 header{
-    background:#111827;
-    color:white;
-    padding:12px 18px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    flex-wrap:wrap;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 16px;
+  border-bottom:1px solid #ddd;
+  flex-wrap:wrap;
 }
 
 h1{
-    margin:0;
-    font-size:24px;
+  margin:0;
+  font-size:20px;
 }
 
 .toolbar{
-    display:flex;
-    gap:8px;
-    align-items:center;
+  display:flex;
+  gap:8px;
+  align-items:center;
 }
 
-button{
-    padding:8px 12px;
-    border:none;
-    border-radius:8px;
-    font-weight:bold;
-    cursor:pointer;
+.btn{
+  padding:8px 12px;
+  border:1px solid #ccc;
+  border-radius:10px;
+  background:white;
+  cursor:pointer;
+  font-weight:bold;
 }
 
-.run{background:#10b981;color:white;}
-.pause{background:#f59e0b;color:white;}
-.reset{background:#ef4444;color:white;}
-
-.main{
-    display:grid;
-    grid-template-columns:320px 1fr;
-    gap:10px;
-    padding:10px;
-}
-
-.sidebar{
-    background:white;
-    border-radius:12px;
-    padding:12px;
-    overflow-y:auto;
-    max-height:92vh;
+.wrap{
+  padding:10px;
+  max-width:1600px;
+  margin:0 auto;
 }
 
 .controls{
-    display:grid;
-    gap:10px;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(220px,1fr));
+  gap:10px;
+  margin-bottom:10px;
 }
 
 .control{
-    border:1px solid #eee;
-    padding:8px;
-    border-radius:8px;
-    background:#fafafa;
+  background:#fafafa;
+  border:1px solid #eee;
+  border-radius:10px;
+  padding:8px;
 }
 
 .control label{
-    display:block;
-    font-size:12px;
-    font-weight:bold;
-    margin-bottom:4px;
+  display:block;
+  font-size:11px;
+  font-weight:bold;
+  margin-bottom:4px;
 }
 
-.control input,
-.control select{
-    width:100%;
+.control input{
+  width:100%;
+}
+
+.val{
+  font-size:11px;
+  color:#444;
 }
 
 .grid{
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr;
-    gap:10px;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
 }
 
 .plot{
-    height:250px;
-    background:white;
-    border-radius:12px;
+  height:var(--plot-h);
 }
 
-.phase{
-    height:300px;
-    background:white;
-    border-radius:12px;
-    margin-top:10px;
+@media(max-width:1200px){
+  .grid{
+    grid-template-columns:1fr 1fr;
+  }
 }
 
-.diagram{
-    margin-top:10px;
-    background:white;
-    border-radius:12px;
-    padding:10px;
-}
-
-svg{
-    width:100%;
-    height:500px;
-}
-
-.stock{
-    fill:#1d4ed8;
-    stroke:black;
-}
-
-.flow{
-    stroke:black;
-    stroke-width:3;
-}
-
-.arrow{
-    stroke:#ef4444;
-    stroke-width:2;
-    fill:none;
-    marker-end:url(#arrowhead);
-}
-
-.text{
-    font-size:12px;
-    font-weight:bold;
-}
-
-@media(max-width:1400px){
-    .grid{
-        grid-template-columns:1fr 1fr;
-    }
-}
-
-@media(max-width:900px){
-
-    .main{
-        grid-template-columns:1fr;
-    }
-
-    .grid{
-        grid-template-columns:1fr;
-    }
-
+@media(max-width:800px){
+  .grid{
+    grid-template-columns:1fr;
+  }
 }
 
 </style>
@@ -169,9 +118,11 @@ svg{
 
 <div class="toolbar">
 
-<button class="run" id="runBtn">▶ RUN</button>
-<button class="pause" id="pauseBtn">⏸ PAUSE</button>
-<button class="reset" id="resetBtn">⟲ RESET</button>
+<button id="run" class="btn">▶ RUN</button>
+
+<button id="pause" class="btn" disabled>⏸ PAUSE</button>
+
+<button id="reset" class="btn">⟲ RESET</button>
 
 <div id="yearLabel">
 <strong>YEAR: 2000</strong>
@@ -181,188 +132,113 @@ svg{
 
 </header>
 
-<div class="main">
-
-<div class="sidebar">
-
-<h3>POLICY CONTROLS</h3>
+<div class="wrap">
 
 <div class="controls">
 
 <div class="control">
+<label>BASELINE ELECTIVE CAPACITY</label>
+<input id="baselineElectiveCapacity"
+type="range"
+min="50"
+max="600"
+step="1"
+value="267">
+<div class="val" id="baselineElectiveCapacityVal">267</div>
+</div>
+
+<div class="control">
 <label>BED CAPACITY</label>
-<input type="range" id="bedCapacity" min="3000" max="8000" value="5600">
-<div id="bedCapacityVal">5600</div>
+<input id="bedCapacity"
+type="range"
+min="1000"
+max="12000"
+step="100"
+value="5600">
+<div class="val" id="bedCapacityVal">5600</div>
 </div>
 
 <div class="control">
-<label>EMERGENCY ADMISSIONS</label>
-<input type="range" id="emergencyAdmissions" min="40" max="180" value="60">
-<div id="emergencyAdmissionsVal">60</div>
+<label>BASELINE EMERGENCY ADMISSIONS</label>
+<input id="baselineEmergencyAdmissions"
+type="range"
+min="10"
+max="200"
+step="1"
+value="60">
+<div class="val" id="baselineEmergencyAdmissionsVal">60</div>
 </div>
 
 <div class="control">
-<label>BASELINE LOS</label>
-<input type="range" id="los" min="5" max="60" step="0.1" value="23">
-<div id="losVal">23</div>
+<label>BASELINE LENGTH OF STAY</label>
+<input id="baselineLOS"
+type="range"
+min="5"
+max="60"
+step="0.1"
+value="23">
+<div class="val" id="baselineLOSVal">23</div>
 </div>
 
 <div class="control">
 <label>COMPLEXITY SENSITIVITY</label>
-<input type="range" id="complexity" min="0" max="2" step="0.01" value="0.35">
-<div id="complexityVal">0.35</div>
+<input id="complexitySensitivity"
+type="range"
+min="0"
+max="2"
+step="0.01"
+value="0.35">
+<div class="val" id="complexitySensitivityVal">0.35</div>
 </div>
 
 <div class="control">
 <label>SAFE OCCUPANCY</label>
-<input type="range" id="safeOcc" min="0.5" max="1" step="0.01" value="0.85">
-<div id="safeOccVal">0.85</div>
+<input id="safeOccupancy"
+type="range"
+min="0.5"
+max="1"
+step="0.01"
+value="0.85">
+<div class="val" id="safeOccupancyVal">0.85</div>
 </div>
 
 <div class="control">
 <label>COVID PRODUCTIVITY LOSS</label>
-<input type="range" id="covidLoss" min="0" max="0.7" step="0.01" value="0">
-<div id="covidLossVal">0</div>
-</div>
-
-<h3>INTERVENTIONS</h3>
-
-<div class="control">
-<label>BED EXPANSION POLICY</label>
-<input type="checkbox" id="bedExpansion">
-</div>
-
-<div class="control">
-<label>STAFFING SUPPORT POLICY</label>
-<input type="checkbox" id="staffingSupport">
+<input id="covidProductivityLoss"
+type="range"
+min="0"
+max="1"
+step="0.01"
+value="0">
+<div class="val" id="covidProductivityLossVal">0</div>
 </div>
 
 <div class="control">
-<label>DISCHARGE ACCELERATION POLICY</label>
-<input type="checkbox" id="dischargeAcceleration">
-</div>
-
-<div class="control">
-
-<label>SCENARIO COMPARISON</label>
-
-<select id="scenario">
-<option value="baseline">BASELINE</option>
-<option value="stress">HIGH STRESS</option>
-<option value="resilient">RESILIENT SYSTEM</option>
-</select>
-
+<label>PROJECTION END YEAR</label>
+<input id="endYear"
+type="range"
+min="2005"
+max="2050"
+step="1"
+value="2050">
+<div class="val" id="endYearVal">2050</div>
 </div>
 
 </div>
-
-<div class="diagram">
-
-<h3>STOCK-FLOW STRUCTURE + CAUSAL LOOPS</h3>
-
-<svg viewBox="0 0 900 500">
-
-<defs>
-
-<marker id="arrowhead"
-markerWidth="10"
-markerHeight="7"
-refX="10"
-refY="3.5"
-orient="auto">
-
-<polygon points="0 0, 10 3.5, 0 7" fill="#ef4444"/>
-
-</marker>
-
-</defs>
-
-<rect x="150" y="180" width="120" height="60" class="stock"/>
-
-<text x="170" y="215" fill="white" class="text">
-ACUTE
-</text>
-
-<text x="170" y="235" fill="white" class="text">
-INPATIENTS
-</text>
-
-<rect x="450" y="180" width="120" height="60" class="stock"/>
-
-<text x="470" y="215" fill="white" class="text">
-DISCHARGE
-</text>
-
-<text x="470" y="235" fill="white" class="text">
-READY
-</text>
-
-<line x1="50" y1="210" x2="150" y2="210" class="flow"/>
-
-<text x="70" y="190" class="text">
-ADMISSIONS
-</text>
-
-<line x1="270" y1="210" x2="450" y2="210" class="flow"/>
-
-<text x="320" y="190" class="text">
-DISCHARGE
-</text>
-
-<line x1="570" y1="210" x2="720" y2="210" class="flow"/>
-
-<text x="610" y="190" class="text">
-FINAL
-</text>
-
-<ellipse cx="320" cy="360" rx="80" ry="40"
-fill="#fef3c7"
-stroke="black"/>
-
-<text x="270" y="365" class="text">
-BURNOUT
-</text>
-
-<ellipse cx="620" cy="360" rx="110" ry="40"
-fill="#fee2e2"
-stroke="black"/>
-
-<text x="560" y="365" class="text">
-OCCUPANCY PRESSURE
-</text>
-
-<path d="M620 320 C620 250 520 250 520 240" class="arrow"/>
-<path d="M320 320 C320 260 380 260 420 220" class="arrow"/>
-<path d="M570 220 C650 240 700 280 700 340" class="arrow"/>
-<path d="M700 340 C700 420 420 420 320 400" class="arrow"/>
-
-<text x="720" y="340" fill="red" class="text">
-R1 DOOM LOOP
-</text>
-
-</svg>
-
-</div>
-
-</div>
-
-<div>
 
 <div class="grid">
 
 <div id="bedsPlot" class="plot"></div>
+
 <div id="waitPlot" class="plot"></div>
+
 <div id="burnoutPlot" class="plot"></div>
 
 <div id="losPlot" class="plot"></div>
+
 <div id="occupancyPlot" class="plot"></div>
+
 <div id="admissionsPlot" class="plot"></div>
-
-</div>
-
-<div id="phasePlot" class="phase"></div>
-
-<div id="tornadoPlot" class="phase"></div>
 
 </div>
 
@@ -370,463 +246,599 @@ R1 DOOM LOOP
 
 <script>
 
-const ids = [
+(function(){
+
+const $ = id => document.getElementById(id);
+
+const sliders = [
+"baselineElectiveCapacity",
 "bedCapacity",
-"emergencyAdmissions",
-"los",
-"complexity",
-"safeOcc",
-"covidLoss"
+"baselineEmergencyAdmissions",
+"baselineLOS",
+"complexitySensitivity",
+"safeOccupancy",
+"covidProductivityLoss",
+"endYear"
 ];
 
-ids.forEach(id=>{
+sliders.forEach(id=>{
 
-    document.getElementById(id)
-    .addEventListener("input",()=>{
+  $(id).addEventListener("input",()=>{
 
-        document.getElementById(id+"Val")
-        .innerText =
-        document.getElementById(id).value;
+    $(id+"Val").textContent =
+      $(id).value;
 
-        render();
-
-    });
+  });
 
 });
 
-document.getElementById("scenario")
-.addEventListener("change",render);
+let animationTimer = null;
+let frame = 0;
+let results = null;
 
-document.getElementById("bedExpansion")
-.addEventListener("change",render);
+function getParams(){
 
-document.getElementById("staffingSupport")
-.addEventListener("change",render);
+  return {
 
-document.getElementById("dischargeAcceleration")
-.addEventListener("change",render);
+    BASELINE_ELECTIVE_CAPACITY:
+      +$("baselineElectiveCapacity").value,
 
-let timer = null;
+    BASELINE_ELECTIVE_WAIT:
+      450,
 
-function params(){
+    BASELINE_EMERGENCY_ADMISSIONS:
+      +$("baselineEmergencyAdmissions").value,
 
-    let p = {
+    BASELINE_FINAL_DISCHARGE_DELAY:
+      4,
 
-        bedCapacity:+bedCapacity.value,
-        emergencyAdmissions:+emergencyAdmissions.value,
-        baselineLOS:+los.value,
-        complexitySensitivity:+complexity.value,
-        safeOccupancy:+safeOcc.value,
-        covidLoss:+covidLoss.value
+    BASELINE_LENGTH_OF_STAY:
+      +$("baselineLOS").value,
 
-    };
+    BASELINE_REFERRALS:
+      267,
 
-    if(scenario.value === "stress"){
+    BED_CAPACITY:
+      +$("bedCapacity").value,
 
-        p.emergencyAdmissions *= 1.5;
-        p.covidLoss += 0.25;
+    BURNOUT_BUILD_TIME:
+      240,
 
-    }
+    BURNOUT_IMPACT_ON_THROUGHPUT:
+      0.6,
 
-    if(scenario.value === "resilient"){
+    BURNOUT_RECOVERY_TIME:
+      540,
 
-        p.bedCapacity += 1000;
-        p.baselineLOS *= 0.8;
+    COMPLEXITY_SENSITIVITY:
+      +$("complexitySensitivity").value,
 
-    }
+    CONGESTION_IMPACT_ON_THROUGHPUT:
+      1,
 
-    return p;
+    COVID_COMPLEXITY_INCREASE:
+      0,
+
+    COVID_PRODUCTIVITY_LOSS:
+      +$("covidProductivityLoss").value,
+
+    DOWNSTREAM_DELAY_SENSITIVITY:
+      1.2,
+
+    ELECTIVE_INPATIENT_FRACTION:
+      0.35,
+
+    ELECTIVE_SCHEDULING_TIME:
+      30,
+
+    INITIAL_ACUTE_INPATIENTS:
+      3530,
+
+    INITIAL_BURNOUT:
+      0.2,
+
+    INITIAL_DISCHARGE_READY_PATIENTS:
+      613,
+
+    INITIAL_ELECTIVE_WAITING_LIST:
+      120000,
+
+    LOS_SENSITIVITY_TO_OCCUPANCY:
+      0.6,
+
+    MINIMUM_THROUGHPUT_FRACTION:
+      0.45,
+
+    NORMAL_BURNOUT:
+      0.2,
+
+    OCCUPANCY_PRESSURE_WEIGHT:
+      0.6,
+
+    SAFE_OCCUPANCY:
+      +$("safeOccupancy").value,
+
+    SUSTAINABLE_PRESSURE:
+      1,
+
+    TIME_TO_RECOVER:
+      1845,
+
+    WAIT_PRESSURE_WEIGHT:
+      0.4,
+
+    TIME_STEP:
+      1,
+
+    END_YEAR:
+      +$("endYear").value
+  };
 }
 
 function simulate(){
 
-    const p = params();
+  const p = getParams();
 
-    let acute = 3530;
-    let discharge = 613;
-    let burnout = 0.2;
-    let waitList = 120000;
+  const finalTime =
+    (p.END_YEAR - 2000) * 365;
 
-    let t = [];
+  let acuteInpatients =
+    p.INITIAL_ACUTE_INPATIENTS;
 
-    let beds = [];
-    let waits = [];
-    let burn = [];
-    let losSeries = [];
-    let occ = [];
-    let admissions = [];
+  let dischargeReadyPatients =
+    p.INITIAL_DISCHARGE_READY_PATIENTS;
 
-    for(let day=0; day<365*50; day++){
+  let burnout =
+    p.INITIAL_BURNOUT;
 
-        let electiveCapacity =
-            267 * (1-p.covidLoss);
+  let electiveWaitingList =
+    p.INITIAL_ELECTIVE_WAITING_LIST;
 
-        if(
-            bedExpansion.checked &&
-            day > 365*5
-        ){
-            p.bedCapacity += 0.02;
-        }
+  let residualComplexityIncrease =
+    p.COVID_COMPLEXITY_INCREASE;
 
-        if(staffingSupport.checked){
-            burnout *= 0.9995;
-        }
+  let residualProductivityLoss =
+    p.COVID_PRODUCTIVITY_LOSS;
 
-        let electiveAdmissions =
-            Math.min(
-                electiveCapacity,
-                waitList/30
-            );
+  let t = [];
 
-        let totalAdmissions =
-            p.emergencyAdmissions +
-            electiveAdmissions*0.35;
+  let occupiedBedsSeries = [];
+  let waitSeries = [];
+  let burnoutSeries = [];
+  let losSeries = [];
+  let occupancySeries = [];
+  let admissionsSeries = [];
 
-        let occupied =
-            acute + discharge;
+  for(let time=0;
+      time<=finalTime;
+      time+=p.TIME_STEP){
 
-        let occupancyPressure =
-            occupied/p.bedCapacity;
+    const pandemicEffectOnComplexity =
+      1 + residualComplexityIncrease;
 
-        let electiveWait =
-            waitList /
-            Math.max(1,electiveAdmissions);
+    const pandemicEffectOnProductivity =
+      1 - residualProductivityLoss;
 
-        let occupancyEffect =
-            1 +
-            0.6 *
-            Math.max(
-                0,
-                (occupancyPressure-p.safeOccupancy)
-                /
-                p.safeOccupancy
-            );
+    const electiveCapacity =
+      p.BASELINE_ELECTIVE_CAPACITY *
+      pandemicEffectOnProductivity;
 
-        let complexityEffect =
-            1 +
-            p.complexitySensitivity *
-            Math.max(
-                0,
-                electiveWait/450 - 1
-            );
+    const electiveAdmissions =
+      Math.min(
+        electiveCapacity,
+        electiveWaitingList /
+        p.ELECTIVE_SCHEDULING_TIME
+      );
 
-        let avgLOS =
-            p.baselineLOS *
-            occupancyEffect *
-            complexityEffect;
+    const inpatientElectiveAdmissions =
+      electiveAdmissions *
+      p.ELECTIVE_INPATIENT_FRACTION;
 
-        if(dischargeAcceleration.checked){
-            avgLOS *= 0.8;
-        }
+    const emergencyAdmissions =
+      p.BASELINE_EMERGENCY_ADMISSIONS;
 
-        let dischargeReadiness =
-            acute/avgLOS;
+    const totalAdmissions =
+      emergencyAdmissions +
+      inpatientElectiveAdmissions;
 
-        let finalDischarges =
-            discharge/4;
+    const occupiedBeds =
+      acuteInpatients +
+      dischargeReadyPatients;
 
-        let pressureIndex =
-            1 +
-            Math.max(
-                0,
-                occupancyPressure-p.safeOccupancy
-            );
+    const occupancyPressure =
+      occupiedBeds /
+      p.BED_CAPACITY;
 
-        burnout +=
-            (
-                Math.max(
-                    0,
-                    (pressureIndex-1)
-                    *
-                    (1-burnout)
-                    /240
-                )
-                -
-                Math.max(
-                    0,
-                    burnout-0.2
-                )/540
-            );
+    const electiveWait =
+      electiveWaitingList /
+      Math.max(1e-6,electiveAdmissions);
 
-        let throughput =
-            Math.max(
-                0.45,
-                1 -
-                0.6 *
-                Math.max(
-                    0,
-                    burnout-0.2
-                )
-            );
+    const electiveWaitRatio =
+      electiveWait /
+      p.BASELINE_ELECTIVE_WAIT;
 
-        dischargeReadiness *= throughput;
-        finalDischarges *= throughput;
+    const occupancyEffectOnLOS =
+      1 +
+      p.LOS_SENSITIVITY_TO_OCCUPANCY *
+      Math.max(
+        0,
+        (occupancyPressure -
+        p.SAFE_OCCUPANCY) /
+        p.SAFE_OCCUPANCY
+      );
 
-        acute +=
-            totalAdmissions -
-            dischargeReadiness;
+    const complexityEffectOnLOS =
+      1 +
+      p.COMPLEXITY_SENSITIVITY *
+      Math.max(
+        0,
+        electiveWaitRatio - 1
+      );
 
-        discharge +=
-            dischargeReadiness -
-            finalDischarges;
+    const averageLOS =
+      p.BASELINE_LENGTH_OF_STAY *
+      complexityEffectOnLOS *
+      occupancyEffectOnLOS *
+      pandemicEffectOnComplexity;
 
-        waitList +=
-            267 -
-            electiveAdmissions;
+    const dischargeReadiness =
+      acuteInpatients /
+      averageLOS;
 
-        t.push(2000 + day/365);
+    const downstreamDelayEffect =
+      1 +
+      p.DOWNSTREAM_DELAY_SENSITIVITY *
+      Math.max(
+        0,
+        (occupancyPressure -
+        p.SAFE_OCCUPANCY) /
+        p.SAFE_OCCUPANCY
+      );
 
-        beds.push(occupied);
-        waits.push(electiveWait);
-        burn.push(burnout);
-        losSeries.push(avgLOS);
-        occ.push(occupancyPressure);
-        admissions.push(totalAdmissions);
+    const finalDischargeDelay =
+      p.BASELINE_FINAL_DISCHARGE_DELAY *
+      downstreamDelayEffect;
 
-    }
+    const finalDischarges =
+      dischargeReadyPatients /
+      finalDischargeDelay;
 
-    return {
-        t,beds,waits,burn,
-        losSeries,occ,admissions
-    };
+    const occupancyPressureEffect =
+      p.OCCUPANCY_PRESSURE_WEIGHT *
+      Math.max(
+        0,
+        occupancyPressure -
+        p.SAFE_OCCUPANCY
+      ) /
+      p.SAFE_OCCUPANCY;
+
+    const waitPressureEffect =
+      p.WAIT_PRESSURE_WEIGHT *
+      Math.max(
+        0,
+        electiveWaitRatio - 1
+      );
+
+    const pressureIndex =
+      1 +
+      occupancyPressureEffect +
+      waitPressureEffect;
+
+    const burnoutBuildup =
+      Math.max(
+        0,
+        (pressureIndex -
+        p.SUSTAINABLE_PRESSURE) *
+        (1 - Math.min(1,burnout)) /
+        p.BURNOUT_BUILD_TIME
+      );
+
+    const burnoutRecovery =
+      Math.max(
+        0,
+        burnout -
+        p.NORMAL_BURNOUT
+      ) /
+      p.BURNOUT_RECOVERY_TIME;
+
+    const throughputEffectOfBurnout =
+      Math.max(
+        p.MINIMUM_THROUGHPUT_FRACTION,
+        1 -
+        p.BURNOUT_IMPACT_ON_THROUGHPUT *
+        Math.max(
+          0,
+          burnout -
+          p.NORMAL_BURNOUT
+        )
+      );
+
+    const throughputEffectOfOccupancy =
+      1 /
+      (
+        1 +
+        p.CONGESTION_IMPACT_ON_THROUGHPUT *
+        Math.max(
+          0,
+          occupancyPressure -
+          p.SAFE_OCCUPANCY
+        ) /
+        p.SAFE_OCCUPANCY
+      );
+
+    const adjustedDischargeReadiness =
+      dischargeReadiness *
+      throughputEffectOfBurnout *
+      throughputEffectOfOccupancy;
+
+    const adjustedFinalDischarges =
+      finalDischarges *
+      throughputEffectOfBurnout *
+      throughputEffectOfOccupancy;
+
+    const complexityRecovery =
+      residualComplexityIncrease /
+      p.TIME_TO_RECOVER;
+
+    const productivityRecovery =
+      residualProductivityLoss /
+      p.TIME_TO_RECOVER;
+
+    acuteInpatients =
+      acuteInpatients +
+      (
+        totalAdmissions -
+        adjustedDischargeReadiness
+      ) *
+      p.TIME_STEP;
+
+    dischargeReadyPatients =
+      dischargeReadyPatients +
+      (
+        adjustedDischargeReadiness -
+        adjustedFinalDischarges
+      ) *
+      p.TIME_STEP;
+
+    burnout =
+      burnout +
+      (
+        burnoutBuildup -
+        burnoutRecovery
+      ) *
+      p.TIME_STEP;
+
+    electiveWaitingList =
+      electiveWaitingList +
+      (
+        p.BASELINE_REFERRALS -
+        electiveAdmissions
+      ) *
+      p.TIME_STEP;
+
+    residualComplexityIncrease =
+      residualComplexityIncrease -
+      complexityRecovery *
+      p.TIME_STEP;
+
+    residualProductivityLoss =
+      residualProductivityLoss -
+      productivityRecovery *
+      p.TIME_STEP;
+
+    t.push(2000 + time/365);
+
+    occupiedBedsSeries.push(
+      occupiedBeds
+    );
+
+    waitSeries.push(
+      electiveWait
+    );
+
+    burnoutSeries.push(
+      burnout
+    );
+
+    losSeries.push(
+      averageLOS
+    );
+
+    occupancySeries.push(
+      occupancyPressure
+    );
+
+    admissionsSeries.push(
+      totalAdmissions
+    );
+  }
+
+  return {
+    t,
+    occupiedBedsSeries,
+    waitSeries,
+    burnoutSeries,
+    losSeries,
+    occupancySeries,
+    admissionsSeries
+  };
 }
 
-function thresholdShapes(x,y,threshold){
+function plotPartial(index){
 
-    let shapes = [];
+  const r = results;
 
-    for(let i=0;i<y.length;i++){
+  const t =
+    r.t.slice(0,index);
 
-        if(y[i] > threshold){
+  function cut(arr){
+    return arr.slice(0,index);
+  }
 
-            shapes.push({
-
-                type:"rect",
-
-                x0:x[i],
-
-                x1:x[
-                    Math.min(
-                        i+1,
-                        x.length-1
-                    )
-                ],
-
-                y0:threshold,
-
-                y1:Math.max(...y),
-
-                fillcolor:"rgba(255,0,0,0.15)",
-
-                line:{width:0}
-
-            });
-
-        }
-
+  Plotly.react(
+    "bedsPlot",
+    [{
+      x:t,
+      y:cut(r.occupiedBedsSeries),
+      mode:"lines",
+      line:{width:2}
+    }],
+    {
+      title:"OCCUPIED BEDS",
+      margin:{t:40,l:50,r:10,b:40}
     }
+  );
 
-    return shapes;
+  Plotly.react(
+    "waitPlot",
+    [{
+      x:t,
+      y:cut(r.waitSeries),
+      mode:"lines",
+      line:{width:2}
+    }],
+    {
+      title:"ELECTIVE WAIT TIME",
+      margin:{t:40,l:50,r:10,b:40}
+    }
+  );
+
+  Plotly.react(
+    "burnoutPlot",
+    [{
+      x:t,
+      y:cut(r.burnoutSeries),
+      mode:"lines",
+      line:{width:2}
+    }],
+    {
+      title:"BURNOUT",
+      margin:{t:40,l:50,r:10,b:40}
+    }
+  );
+
+  Plotly.react(
+    "losPlot",
+    [{
+      x:t,
+      y:cut(r.losSeries),
+      mode:"lines",
+      line:{width:2}
+    }],
+    {
+      title:"AVERAGE LENGTH OF STAY",
+      margin:{t:40,l:50,r:10,b:40}
+    }
+  );
+
+  Plotly.react(
+    "occupancyPlot",
+    [{
+      x:t,
+      y:cut(r.occupancySeries),
+      mode:"lines",
+      line:{width:2}
+    }],
+    {
+      title:"OCCUPANCY PRESSURE",
+      margin:{t:40,l:50,r:10,b:40}
+    }
+  );
+
+  Plotly.react(
+    "admissionsPlot",
+    [{
+      x:t,
+      y:cut(r.admissionsSeries),
+      mode:"lines",
+      line:{width:2}
+    }],
+    {
+      title:"TOTAL ADMISSIONS",
+      margin:{t:40,l:50,r:10,b:40}
+    }
+  );
+
+  if(index>0){
+
+    $("yearLabel").innerHTML =
+      "<strong>YEAR: " +
+      Math.floor(
+        t[t.length-1]
+      ) +
+      "</strong>";
+  }
 }
 
-function render(){
+function run(){
 
-    const r = simulate();
+  results = simulate();
 
-    const occThreshold =
-        params().safeOccupancy;
+  frame = 10;
 
-    Plotly.react("bedsPlot",[{
+  $("run").disabled = true;
+  $("pause").disabled = false;
 
-        x:r.t,
-        y:r.beds,
-        mode:"lines",
-        name:"BEDS"
+  if(animationTimer){
+    clearInterval(animationTimer);
+  }
 
-    }],{
+  animationTimer =
+    setInterval(()=>{
 
-        title:"OCCUPIED BEDS"
+      frame += 30;
 
-    });
+      if(frame >= results.t.length){
 
-    Plotly.react("waitPlot",[{
+        frame =
+          results.t.length;
 
-        x:r.t,
-        y:r.waits,
-        mode:"lines"
+        pause();
+      }
 
-    }],{
+      plotPartial(frame);
 
-        title:"ELECTIVE WAIT TIME"
-
-    });
-
-    Plotly.react("burnoutPlot",[{
-
-        x:r.t,
-        y:r.burn,
-        mode:"lines"
-
-    }],{
-
-        title:"BURNOUT"
-
-    });
-
-    Plotly.react("losPlot",[{
-
-        x:r.t,
-        y:r.losSeries,
-        mode:"lines"
-
-    }],{
-
-        title:"AVERAGE LENGTH OF STAY"
-
-    });
-
-    Plotly.react("occupancyPlot",[{
-
-        x:r.t,
-        y:r.occ,
-        mode:"lines",
-        line:{color:"darkred"}
-
-    }],{
-
-        title:"OCCUPANCY PRESSURE",
-
-        shapes:
-        thresholdShapes(
-            r.t,
-            r.occ,
-            occThreshold
-        ),
-
-        annotations:[{
-
-            x:r.t[100],
-
-            y:occThreshold,
-
-            text:
-            "SAFE OCCUPANCY THRESHOLD",
-
-            showarrow:false,
-
-            font:{color:"red"}
-
-        }]
-
-    });
-
-    Plotly.react("admissionsPlot",[{
-
-        x:r.t,
-        y:r.admissions,
-        mode:"lines"
-
-    }],{
-
-        title:"TOTAL ADMISSIONS"
-
-    });
-
-    Plotly.react("phasePlot",[{
-
-        x:r.occ,
-        y:r.burn,
-        mode:"lines",
-
-        line:{color:"purple"}
-
-    }],{
-
-        title:
-        "PHASE PLOT: OCCUPANCY vs BURNOUT",
-
-        xaxis:{
-            title:"OCCUPANCY PRESSURE"
-        },
-
-        yaxis:{
-            title:"BURNOUT"
-        }
-
-    });
-
-    Plotly.react("tornadoPlot",[{
-
-        type:"bar",
-
-        orientation:"h",
-
-        y:[
-            "BED CAPACITY",
-            "EMERGENCY ADMISSIONS",
-            "LOS",
-            "COMPLEXITY",
-            "COVID LOSS"
-        ],
-
-        x:[
-            -0.7,
-            0.9,
-            0.6,
-            0.4,
-            1.1
-        ]
-
-    }],{
-
-        title:"SENSITIVITY TORNADO PLOT",
-
-        xaxis:{
-            title:"SYSTEM IMPACT"
-        }
-
-    });
-
+    },40);
 }
 
-runBtn.onclick = ()=>{
+function pause(){
 
-    render();
+  $("run").disabled = false;
+  $("pause").disabled = true;
 
-    if(timer){
-        clearInterval(timer);
-    }
+  clearInterval(animationTimer);
+}
 
-    let y = 2000;
+function reset(){
 
-    timer = setInterval(()=>{
+  pause();
 
-        yearLabel.innerHTML =
-            "<strong>YEAR: "+y+"</strong>";
+  plotPartial(10);
 
-        y++;
+  $("yearLabel").innerHTML =
+    "<strong>YEAR: 2000</strong>";
+}
 
-        if(y>2050){
-            clearInterval(timer);
-        }
+$("run").addEventListener(
+  "click",
+  run
+);
 
-    },60);
+$("pause").addEventListener(
+  "click",
+  pause
+);
 
-};
+$("reset").addEventListener(
+  "click",
+  reset
+);
 
-pauseBtn.onclick = ()=>{
+results = simulate();
 
-    clearInterval(timer);
+plotPartial(10);
 
-};
-
-resetBtn.onclick = ()=>{
-
-    location.reload();
-
-};
-
-render();
+})();
 
 </script>
 
