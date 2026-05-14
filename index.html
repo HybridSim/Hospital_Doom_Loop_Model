@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -227,8 +228,8 @@ select{
 
 <div class="slider-box">
 <label>BASELINE LENGTH OF STAY</label>
-<input id="lengthStay" type="range" min="0" max="30" step="0.5" value="5">
-<div class="slider-value" id="lengthStayVal">5</div>
+<input id="lengthStay" type="range" min="1" max="30" step="0.5" value="23">
+<div class="slider-value" id="lengthStayVal">23</div>
 </div>
 
 <div class="slider-box">
@@ -251,7 +252,7 @@ select{
 
 <div class="slider-box">
 <label>PROJECTION END DAY</label>
-<input id="simulationHorizon" type="range" min="0" max="5000" step="100" value="4015">
+<input id="simulationHorizon" type="range" min="1000" max="5000" step="100" value="4015">
 <div class="slider-value" id="simulationHorizonVal">4015</div>
 </div>
 
@@ -463,7 +464,7 @@ function simulate(){
       3500 +
       lengthStay*30 *
       Math.log(1+t/20) +
-      800*(1-Math.exp(-t/2500))
+      900*(1-Math.exp(-t/2500))
     );
 
     dischargeSeries.push(
@@ -476,27 +477,83 @@ function simulate(){
       0.42*(1-Math.exp(-t/1500))
     );
 
+    /* BASELINE */
+
     const base =
+
       4200 +
-      (1-safeOccupancy)*1200 +
-      complexitySensitivity*1000 *
-      (1-Math.exp(-t/1000)) +
-      productivityLoss*1800 *
-      (1-Math.exp(-t/2400));
+
+      250*(1-Math.exp(-t/60)) +
+
+      520*(1-Math.exp(-Math.max(t-1000,0)/900)) +
+
+      900*(1-Math.exp(-Math.max(t-1000,0)/2200)) +
+
+      productivityLoss*700 +
+
+      complexitySensitivity*400;
 
     baselineBeds.push(base);
 
     occupiedBedsSeries.push(base);
 
-    electiveSurgeBeds.push(base-450);
+    /* ELECTIVE RECOVERY SURGE */
 
-    congestionReductionBeds.push(base-300);
+    electiveSurgeBeds.push(
 
-    complexityPreventionBeds.push(base-550);
+        4000 +
 
-    productivityRecoveryBeds.push(base-700);
+        650*(1-Math.exp(-t/1200)) -
 
-    avoidanceCommunityBeds.push(base-1200);
+        220*(1-Math.exp(-Math.max(t-1000,0)/900))
+
+    );
+
+    /* REDUCED CONGESTION EFFECTS */
+
+    congestionReductionBeds.push(
+
+        4100 +
+
+        720*(1-Math.exp(-t/1800)) -
+
+        180*(1-Math.exp(-Math.max(t-1200,0)/1400))
+
+    );
+
+    /* COMPLEXITY PREVENTION */
+
+    complexityPreventionBeds.push(
+
+        3900 +
+
+        620*(1-Math.exp(-t/2200)) -
+
+        120*(1-Math.exp(-Math.max(t-2400,0)/900))
+
+    );
+
+    /* PRODUCTIVITY RECOVERY */
+
+    productivityRecoveryBeds.push(
+
+        3600 +
+
+        520*(1-Math.exp(-t/1400)) +
+
+        180*(1-Math.exp(-Math.max(t-2600,0)/1200))
+
+    );
+
+    /* AVOIDANCE + COMMUNITY CARE */
+
+    avoidanceCommunityBeds.push(
+
+        3200 +
+
+        620*(1-Math.exp(-t/1600))
+
+    );
 
   }
 
@@ -660,7 +717,7 @@ function plotPartial(index){
     "acutePlot",
     "Acute Inpatients",
     "Patients",
-    [0,6000],
+    [0,7000],
     t,
     cut(r.acuteSeries)
   );
@@ -669,7 +726,7 @@ function plotPartial(index){
     "dischargePlot",
     "Discharge Ready Patients",
     "Patients",
-    [0,1000],
+    [0,1200],
     t,
     cut(r.dischargeSeries)
   );
@@ -678,7 +735,7 @@ function plotPartial(index){
     "burnoutPlot",
     "Burnout",
     "Dmnl",
-    [0,0.7],
+    [0,1],
     t,
     cut(r.burnoutSeries)
   );
