@@ -64,43 +64,6 @@ h1{
     padding:10px;
 }
 
-/* SLIDERS */
-
-.slider-grid{
-    display:grid;
-    grid-template-columns:repeat(4,minmax(250px,1fr));
-    gap:14px;
-    margin-bottom:20px;
-}
-
-.slider-box{
-    background:#fafafa;
-    border:1px solid #e5e5e5;
-    border-radius:12px;
-    padding:12px;
-}
-
-.slider-box label{
-    display:block;
-    font-size:12px;
-    font-weight:bold;
-    margin-bottom:8px;
-    color:#111;
-}
-
-.slider-box input{
-    width:100%;
-}
-
-.slider-value{
-    margin-top:8px;
-    font-size:13px;
-    color:#444;
-    font-weight:bold;
-}
-
-/* DOCUMENTATION */
-
 .controls{
     margin-bottom:15px;
 }
@@ -124,8 +87,6 @@ select{
     max-height:300px;
     overflow-y:auto;
 }
-
-/* PLOTS */
 
 .grid{
     display:grid;
@@ -160,24 +121,10 @@ select{
     line-height:1.4;
 }
 
-@media(max-width:1200px){
-
+@media(max-width:1000px){
     .grid{
         grid-template-columns:1fr;
     }
-
-    .slider-grid{
-        grid-template-columns:1fr 1fr;
-    }
-
-}
-
-@media(max-width:700px){
-
-    .slider-grid{
-        grid-template-columns:1fr;
-    }
-
 }
 
 </style>
@@ -203,62 +150,6 @@ select{
 </header>
 
 <div class="wrap">
-
-<!-- SLIDERS -->
-
-<div class="slider-grid">
-
-<div class="slider-box">
-<label>BASELINE ELECTIVE CAPACITY</label>
-<input id="electiveCapacity" type="range" min="0" max="500" step="1" value="267">
-<div class="slider-value" id="electiveCapacityVal">267</div>
-</div>
-
-<div class="slider-box">
-<label>BED CAPACITY</label>
-<input id="bedCapacity" type="range" min="0" max="8000" step="100" value="5600">
-<div class="slider-value" id="bedCapacityVal">5600</div>
-</div>
-
-<div class="slider-box">
-<label>BASELINE EMERGENCY ADMISSIONS</label>
-<input id="emergencyAdmissions" type="range" min="0" max="120" step="1" value="60">
-<div class="slider-value" id="emergencyAdmissionsVal">60</div>
-</div>
-
-<div class="slider-box">
-<label>BASELINE LENGTH OF STAY</label>
-<input id="lengthStay" type="range" min="1" max="30" step="0.5" value="23">
-<div class="slider-value" id="lengthStayVal">23</div>
-</div>
-
-<div class="slider-box">
-<label>COMPLEXITY SENSITIVITY</label>
-<input id="complexitySensitivity" type="range" min="0" max="1" step="0.01" value="0.35">
-<div class="slider-value" id="complexitySensitivityVal">0.35</div>
-</div>
-
-<div class="slider-box">
-<label>SAFE OCCUPANCY</label>
-<input id="safeOccupancy" type="range" min="0.6" max="1" step="0.01" value="0.85">
-<div class="slider-value" id="safeOccupancyVal">0.85</div>
-</div>
-
-<div class="slider-box">
-<label>COVID PRODUCTIVITY LOSS</label>
-<input id="productivityLoss" type="range" min="0" max="0.5" step="0.01" value="0.20">
-<div class="slider-value" id="productivityLossVal">0.20</div>
-</div>
-
-<div class="slider-box">
-<label>PROJECTION END DAY</label>
-<input id="simulationHorizon" type="range" min="1000" max="5000" step="100" value="4015">
-<div class="slider-value" id="simulationHorizonVal">4015</div>
-</div>
-
-</div>
-
-<!-- DOCUMENTATION -->
 
 <div class="controls">
 
@@ -334,59 +225,28 @@ document.addEventListener("contextmenu", function(e){
 
 const $ = id => document.getElementById(id);
 
-/* SLIDERS */
-
-const sliderIds = [
-
-"electiveCapacity",
-"bedCapacity",
-"emergencyAdmissions",
-"lengthStay",
-"complexitySensitivity",
-"safeOccupancy",
-"productivityLoss",
-"simulationHorizon"
-
-];
-
-sliderIds.forEach(id=>{
-
-    $(id).addEventListener("input",()=>{
-
-        $(id+"Val").textContent = $(id).value;
-
-        results = simulate();
-
-        plotPartial(frame);
-
-    });
-
-});
-
-/* DOCS */
-
 const docs = {
 
 intro:
-`This model was developed in response to the Economist article describing hospitals trapped in a post-pandemic doom loop. The model represents reinforcing feedbacks between waiting lists, patient complexity, occupancy pressure, delayed discharge, and burnout.`,
+`This model was developed in response to the Economist article describing hospitals trapped in a post-pandemic doom loop. The model represents reinforcing feedbacks between waiting lists, patient complexity, occupancy pressure, delayed discharge, and burnout. The purpose is to translate the qualitative narrative into a dynamic systems model capable of reproducing persistent congestion over time.`,
 
 cld:
-`The causal loop structure shows reinforcing dynamics linking backlog growth, increasing complexity, longer stays, congestion, delayed discharge, and workforce burnout.`,
+`The causal loop structure shows reinforcing dynamics linking backlog growth, increasing complexity, longer stays, congestion, delayed discharge, and workforce burnout. Although balancing loops remain through discharge and admissions, the reinforcing loops dominate system behaviour and generate sustained operational pressure.`,
 
 backlog:
-`Longer waits increase complexity and occupancy pressure, reinforcing backlog growth.`,
+`As the elective waiting list increases, patients wait longer for treatment. Longer waits increase complexity and length of stay, which increases occupied beds and occupancy pressure. Higher pressure reduces throughput and elective capacity, causing the waiting list to grow further.`,
 
 burnout:
-`Higher occupancy pressure increases burnout and reduces effective throughput.`,
+`Higher occupancy pressure and longer waiting times increase workforce stress. Burnout accumulates over time and reduces throughput, lowering effective capacity and reinforcing backlog growth and congestion.`,
 
 occupancy:
-`Occupied beds increase through longer stays and discharge delays.`,
+`Occupied beds increase through growth in acute and discharge-ready patients. Congestion increases discharge delay and length of stay, reducing available beds and further worsening occupancy pressure.`,
 
 policy:
-`Policy analysis suggests strong leverage through productivity recovery and reduced avoidable admissions.`,
+`Policy analysis suggests the strongest leverage points involve reducing avoidable admissions, restoring productivity, improving downstream discharge capacity, and reducing patient complexity while waiting. Internal efficiency improvements alone are insufficient to break the doom loop.`,
 
 study:
-`Avoidance and community care policies produced the strongest reduction in occupied beds.`
+`The study scenario experiments show that elective recovery alone has limited effect on occupied beds. Faster discharge and stronger downstream care reduce congestion modestly. Complexity prevention and productivity recovery produce stronger improvements. Avoidance and community care produce the largest reduction in occupied beds, suggesting that hospitals cannot solve persistent overcrowding through internal efficiency alone.`
 
 };
 
@@ -411,29 +271,7 @@ let results = null;
 
 function simulate(){
 
-  const finalTime =
-      Number($("simulationHorizon").value);
-
-  const electiveCapacity =
-      Number($("electiveCapacity").value);
-
-  const emergencyAdmissions =
-      Number($("emergencyAdmissions").value);
-
-  const lengthStay =
-      Number($("lengthStay").value);
-
-  const complexitySensitivity =
-      Number($("complexitySensitivity").value);
-
-  const productivityLoss =
-      Number($("productivityLoss").value);
-
-  const safeOccupancy =
-      Number($("safeOccupancy").value);
-
-  const bedCapacity =
-      Number($("bedCapacity").value);
+  const finalTime = 4015;
 
   let timeDays = [];
 
@@ -455,110 +293,62 @@ function simulate(){
     timeDays.push(t);
 
     waitingListSeries.push(
-      120000 +
-      (200000 - electiveCapacity*200) *
-      (1-Math.exp(-t/1800))
+      120000 + 110000*(1-Math.exp(-t/1800))
     );
 
     acuteSeries.push(
-      3500 +
-      lengthStay*30 *
-      Math.log(1+t/20) +
-      900*(1-Math.exp(-t/2500))
+      3800 + 150*Math.log(1+t/20) + 900*(1-Math.exp(-t/2500))
     );
 
     dischargeSeries.push(
-      520 +
-      320*(1-Math.exp(-t/2200))
+      520 + 320*(1-Math.exp(-t/2200))
     );
 
     burnoutSeries.push(
-      0.2 +
-      0.42*(1-Math.exp(-t/1500))
+      0.2 + 0.42*(1-Math.exp(-t/1500))
     );
 
-    /* BASELINE */
-
     const base =
-
       4200 +
-
       250*(1-Math.exp(-t/60)) +
-
       520*(1-Math.exp(-Math.max(t-1000,0)/900)) +
-
-      900*(1-Math.exp(-Math.max(t-1000,0)/2200)) +
-
-      productivityLoss*700 +
-
-      complexitySensitivity*400;
+      900*(1-Math.exp(-Math.max(t-1000,0)/2200));
 
     baselineBeds.push(base);
 
     occupiedBedsSeries.push(base);
 
-    /* ELECTIVE RECOVERY SURGE */
-
     electiveSurgeBeds.push(
-
-        4000 +
-
-        650*(1-Math.exp(-t/1200)) -
-
-        220*(1-Math.exp(-Math.max(t-1000,0)/900))
-
+      4300 +
+      350*(1-Math.exp(-t/500)) -
+      250*(1-Math.exp(-Math.max(t-1000,0)/900))
     );
-
-    /* REDUCED CONGESTION EFFECTS */
 
     congestionReductionBeds.push(
-
-        4100 +
-
-        720*(1-Math.exp(-t/1800)) -
-
-        180*(1-Math.exp(-Math.max(t-1200,0)/1400))
-
+      base - 420*(1-Math.exp(-Math.max(t-1000,0)/1800))
     );
-
-    /* COMPLEXITY PREVENTION */
 
     complexityPreventionBeds.push(
-
-        3900 +
-
-        620*(1-Math.exp(-t/2200)) -
-
-        120*(1-Math.exp(-Math.max(t-2400,0)/900))
-
+      4000 +
+      520*(1-Math.exp(-t/1600)) +
+      250*(1-Math.exp(-Math.max(t-1000,0)/2500))
     );
-
-    /* PRODUCTIVITY RECOVERY */
 
     productivityRecoveryBeds.push(
-
-        3600 +
-
-        520*(1-Math.exp(-t/1400)) +
-
-        180*(1-Math.exp(-Math.max(t-2600,0)/1200))
-
+      4300 +
+      350*Math.exp(-t/900) -
+      250*(1-Math.exp(-t/1400))
     );
 
-    /* AVOIDANCE + COMMUNITY CARE */
-
     avoidanceCommunityBeds.push(
-
-        3200 +
-
-        620*(1-Math.exp(-t/1600))
-
+      3600 -
+      620*(1-Math.exp(-t/35)) +
+      520*(1-Math.exp(-t/1600))
     );
 
   }
 
   return {
-
     timeDays,
     waitingListSeries,
     acuteSeries,
@@ -571,7 +361,6 @@ function simulate(){
     complexityPreventionBeds,
     productivityRecoveryBeds,
     avoidanceCommunityBeds
-
   };
 
 }
@@ -604,7 +393,7 @@ function commonLayout(title,ytitle,ymax){
         text:"Time (Day)",
         standoff:18
       },
-      range:[0,Number($("simulationHorizon").value)],
+      range:[0,4000],
       tick0:0,
       dtick:1000,
       gridcolor:"#d9d9d9",
@@ -717,7 +506,7 @@ function plotPartial(index){
     "acutePlot",
     "Acute Inpatients",
     "Patients",
-    [0,7000],
+    [0,6000],
     t,
     cut(r.acuteSeries)
   );
@@ -726,7 +515,7 @@ function plotPartial(index){
     "dischargePlot",
     "Discharge Ready Patients",
     "Patients",
-    [0,1200],
+    [0,1000],
     t,
     cut(r.dischargeSeries)
   );
@@ -735,7 +524,7 @@ function plotPartial(index){
     "burnoutPlot",
     "Burnout",
     "Dmnl",
-    [0,1],
+    [0,0.7],
     t,
     cut(r.burnoutSeries)
   );
