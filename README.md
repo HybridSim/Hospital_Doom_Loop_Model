@@ -22,13 +22,6 @@ The dashboard was designed to support:
 - Teaching and demonstration
 - Interactive interpretation of System Dynamics outputs
 
-The interface is implemented using:
-- HTML
-- JavaScript
-- Plotly.js
-
-No additional software installation is required beyond a modern web browser.
-
 ---
 
 ## Model Purpose
