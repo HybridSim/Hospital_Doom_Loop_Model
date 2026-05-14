@@ -16,8 +16,9 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
 <style>
+
 :root{
-    --plot-h:230px;
+    --plot-h:260px;
 }
 
 body{
@@ -90,13 +91,13 @@ select{
 .grid{
     display:grid;
     grid-template-columns:1fr 1fr 1fr;
-    gap:10px;
+    gap:12px;
     margin-top:15px;
 }
 
 .plot{
     height:var(--plot-h);
-    min-height:230px;
+    min-height:260px;
     width:100%;
     border:1px solid #ececec;
     border-radius:10px;
@@ -125,6 +126,7 @@ select{
         grid-template-columns:1fr;
     }
 }
+
 </style>
 
 </head>
@@ -132,6 +134,7 @@ select{
 <body>
 
 <header>
+
 <h1>Hospital Doom Loop Model</h1>
 
 <div class="toolbar">
@@ -143,11 +146,13 @@ select{
 <strong>Simulation Day: 0</strong>
 </div>
 </div>
+
 </header>
 
 <div class="wrap">
 
 <div class="controls">
+
 <select id="docSelect">
 <option value="intro">Introduction</option>
 <option value="cld">Causal Loop Diagram</option>
@@ -159,26 +164,33 @@ select{
 </select>
 
 <div class="docbox" id="docText"></div>
+
 </div>
 
 <div class="section-title">Core Dynamic Behaviour</div>
 
 <div class="grid">
+
 <div id="waitPlot" class="plot"></div>
 <div id="acutePlot" class="plot"></div>
 <div id="dischargePlot" class="plot"></div>
+
 <div id="burnoutPlot" class="plot"></div>
 <div id="bedsPlot" class="plot"></div>
+
 </div>
 
 <div class="section-title">Policy Scenario Experiments: Occupied Beds</div>
 
 <div class="grid">
+
 <div id="surgePlot" class="plot"></div>
 <div id="congestionPlot" class="plot"></div>
 <div id="complexityPlot" class="plot"></div>
+
 <div id="productivityPlot" class="plot"></div>
 <div id="avoidancePlot" class="plot"></div>
+
 </div>
 
 <footer class="copyright-footer">
@@ -189,7 +201,9 @@ No reproduction, redistribution, modification, or commercial use permitted witho
 </div>
 
 <script>
+
 document.addEventListener("copy", function(e){
+
     const selectedText = window.getSelection().toString();
 
     const copyrightNotice =
@@ -198,7 +212,9 @@ document.addEventListener("copy", function(e){
         "\nNo reproduction, redistribution, modification, or commercial use without written permission.";
 
     e.clipboardData.setData("text/plain", selectedText + copyrightNotice);
+
     e.preventDefault();
+
 });
 
 document.addEventListener("contextmenu", function(e){
@@ -210,6 +226,7 @@ document.addEventListener("contextmenu", function(e){
 const $ = id => document.getElementById(id);
 
 const docs = {
+
 intro:
 `This model was developed in response to the Economist article describing hospitals trapped in a post-pandemic doom loop. The model represents reinforcing feedbacks between waiting lists, patient complexity, occupancy pressure, delayed discharge, and burnout. The purpose is to translate the qualitative narrative into a dynamic systems model capable of reproducing persistent congestion over time.`,
 
@@ -230,13 +247,22 @@ policy:
 
 study:
 `The study scenario experiments show that elective recovery alone has limited effect on occupied beds. Faster discharge and stronger downstream care reduce congestion modestly. Complexity prevention and productivity recovery produce stronger improvements. Avoidance and community care produce the largest reduction in occupied beds, suggesting that hospitals cannot solve persistent overcrowding through internal efficiency alone.`
+
 };
 
 function updateDocs(){
-  $("docText").textContent = docs[$("docSelect").value];
+
+  const value = $("docSelect").value;
+
+  $("docText").textContent = docs[value];
+
 }
 
-$("docSelect").addEventListener("change", updateDocs);
+$("docSelect").addEventListener(
+  "change",
+  updateDocs
+);
+
 updateDocs();
 
 let animationTimer = null;
@@ -248,6 +274,7 @@ function simulate(){
   const finalTime = 4015;
 
   let timeDays = [];
+
   let waitingListSeries = [];
   let acuteSeries = [];
   let dischargeSeries = [];
@@ -318,6 +345,7 @@ function simulate(){
       620*(1-Math.exp(-t/35)) +
       520*(1-Math.exp(-t/1600))
     );
+
   }
 
   return {
@@ -334,24 +362,37 @@ function simulate(){
     productivityRecoveryBeds,
     avoidanceCommunityBeds
   };
+
 }
 
 function commonLayout(title,ytitle,ymax){
 
   return {
+
     title:{
       text:"<b>"+title+"</b>",
-      font:{ color:"navy", size:18 },
+      font:{
+        color:"navy",
+        size:18
+      },
       x:0.5
     },
 
     paper_bgcolor:"#ffffff",
     plot_bgcolor:"#ffffff",
 
-    margin:{ t:55, l:70, r:20, b:60 },
+    margin:{
+      t:55,
+      l:70,
+      r:20,
+      b:105
+    },
 
     xaxis:{
-      title:"Time (Day)",
+      title:{
+        text:"Time (Day)",
+        standoff:18
+      },
       range:[0,4000],
       tick0:0,
       dtick:1000,
@@ -372,31 +413,43 @@ function commonLayout(title,ytitle,ymax){
 
     legend:{
       orientation:"h",
-      x:0.05,
-      y:-0.35,
-      font:{ size:11 }
+      x:0.5,
+      xanchor:"center",
+      y:-0.55,
+      yanchor:"top",
+      font:{
+        size:11
+      },
+      bgcolor:"rgba(255,255,255,0.85)"
     }
+
   };
+
 }
 
 function singleLinePlot(id,title,ytitle,ymax,x,y){
+
   Plotly.react(
     id,
     [{
       x:x,
       y:y,
       mode:"lines",
-      line:{ color:"blue", width:2 },
-      name:title
+      line:{
+        color:"blue",
+        width:2
+      }
     }],
     {
       ...commonLayout(title,ytitle,ymax),
       showlegend:false
     }
   );
+
 }
 
 function scenarioPlot(id,title,scenarioName,x,scenario,baseline){
+
   Plotly.react(
     id,
     [
@@ -404,24 +457,36 @@ function scenarioPlot(id,title,scenarioName,x,scenario,baseline){
         x:x,
         y:scenario,
         mode:"lines",
-        line:{ color:"blue", width:2 },
+        line:{
+          color:"blue",
+          width:2
+        },
         name:scenarioName
       },
       {
         x:x,
         y:baseline,
         mode:"lines",
-        line:{ color:"red", width:2 },
+        line:{
+          color:"red",
+          width:2
+        },
         name:"baseline"
       }
     ],
-    commonLayout(title,"Beds",[0,7000])
+    commonLayout(title,"Beds",[0,7000]),
+    {
+      responsive:true,
+      displayModeBar:false
+    }
   );
+
 }
 
 function plotPartial(index){
 
   const r = results;
+
   const t = r.timeDays.slice(0,index);
 
   function cut(arr){
@@ -519,16 +584,20 @@ function plotPartial(index){
   );
 
   if(index>0){
+
     $("timeLabel").innerHTML =
       "<strong>Simulation Day: " +
       Math.floor(t[t.length-1]) +
       "</strong>";
+
   }
+
 }
 
 function run(){
 
   results = simulate();
+
   frame = 10;
 
   clearInterval(animationTimer);
@@ -538,23 +607,33 @@ function run(){
     frame += 25;
 
     if(frame >= results.timeDays.length){
+
       frame = results.timeDays.length;
+
       clearInterval(animationTimer);
+
     }
 
     plotPartial(frame);
 
   },30);
+
 }
 
 function pause(){
+
   clearInterval(animationTimer);
+
 }
 
 function reset(){
+
   clearInterval(animationTimer);
+
   frame = 10;
+
   plotPartial(10);
+
 }
 
 $("run").addEventListener("click",run);
@@ -562,9 +641,11 @@ $("pause").addEventListener("click",pause);
 $("reset").addEventListener("click",reset);
 
 results = simulate();
+
 plotPartial(10);
 
 })();
+
 </script>
 
 </body>
