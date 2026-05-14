@@ -2,94 +2,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Hospital Doom Loop Model</title>
-<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+
+<meta name="author" content="Sinéad Madden">
+<meta name="copyright" content="© Sinéad Madden / Hybrid Simulation Modelling Lab (HSML). All rights reserved.">
+<meta name="description" content="Hospital Doom Loop Model developed by Sinéad Madden / HSML.">
+<meta name="rights" content="No reproduction, redistribution, modification, or commercial use without written permission.">
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
 <style>
 :root{
-  --plot-h:220px;
+    --plot-h:230px;
 }
+
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#ffffff;
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#ffffff;
 }
+
 header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px 16px;
-  border-bottom:1px solid #ddd;
-  flex-wrap:wrap;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 16px;
+    border-bottom:1px solid #d9d9d9;
+    flex-wrap:wrap;
 }
+
 h1{
-  margin:0;
-  font-size:20px;
+    margin:0;
+    font-size:24px;
+    color:#111;
 }
+
 .toolbar{
-  display:flex;
-  gap:8px;
-  align-items:center;
+    display:flex;
+    align-items:center;
+    gap:10px;
 }
+
 .btn{
-  padding:8px 12px;
-  border:1px solid #ccc;
-  border-radius:10px;
-  background:white;
-  cursor:pointer;
-  font-weight:bold;
+    padding:8px 14px;
+    border:1px solid #cfcfcf;
+    border-radius:10px;
+    background:white;
+    cursor:pointer;
+    font-weight:bold;
+    font-size:14px;
 }
+
 .wrap{
-  padding:10px;
-  max-width:1600px;
-  margin:0 auto;
+    max-width:1700px;
+    margin:0 auto;
+    padding:10px;
 }
+
 .controls{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(220px,1fr));
-  gap:10px;
-  margin-bottom:10px;
+    margin-bottom:15px;
 }
-.control{
-  background:#fafafa;
-  border:1px solid #eee;
-  border-radius:10px;
-  padding:8px;
+
+select{
+    padding:10px;
+    border:1px solid #cfcfcf;
+    border-radius:8px;
+    font-size:14px;
+    width:320px;
 }
-.control label{
-  display:block;
-  font-size:11px;
-  font-weight:bold;
-  margin-bottom:4px;
+
+.docbox{
+    margin-top:10px;
+    border:1px solid #d9d9d9;
+    border-radius:10px;
+    padding:16px;
+    background:#fafafa;
+    line-height:1.6;
+    font-size:15px;
+    max-height:300px;
+    overflow-y:auto;
 }
-.control input{
-  width:100%;
-}
-.val{
-  font-size:11px;
-  color:#444;
-}
+
 .grid{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:10px;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:10px;
+    margin-top:15px;
 }
+
 .plot{
-  height:var(--plot-h);
+    height:var(--plot-h);
+    min-height:230px;
+    width:100%;
+    border:1px solid #ececec;
+    border-radius:10px;
 }
-@media(max-width:1200px){
-  .grid{
-    grid-template-columns:1fr 1fr;
-  }
+
+.section-title{
+    margin-top:28px;
+    margin-bottom:8px;
+    font-size:18px;
+    font-weight:bold;
+    color:#111;
 }
-@media(max-width:800px){
-  .grid{
-    grid-template-columns:1fr;
-  }
+
+.copyright-footer{
+    margin-top:20px;
+    padding:10px;
+    border-top:1px solid #d9d9d9;
+    font-size:11px;
+    color:#666;
+    text-align:center;
+    line-height:1.4;
+}
+
+@media(max-width:1000px){
+    .grid{
+        grid-template-columns:1fr;
+    }
 }
 </style>
+
 </head>
 
 <body>
@@ -99,482 +136,391 @@ h1{
 
 <div class="toolbar">
 <button id="run" class="btn">▶ Run</button>
-<button id="pause" class="btn" disabled>⏸ Pause</button>
+<button id="pause" class="btn">⏸ Pause</button>
 <button id="reset" class="btn">⟲ Reset</button>
-<div id="yearLabel"><strong>Year: 2000</strong></div>
+
+<div id="timeLabel">
+<strong>Simulation Day: 0</strong>
+</div>
 </div>
 </header>
 
 <div class="wrap">
 
 <div class="controls">
+<select id="docSelect">
+<option value="intro">Introduction</option>
+<option value="cld">Causal Loop Diagram</option>
+<option value="backlog">Backlog Feedback Loop</option>
+<option value="burnout">Burnout Loop</option>
+<option value="occupancy">Occupancy Dynamics</option>
+<option value="policy">Policy Analysis</option>
+<option value="study">Study Scenario Findings</option>
+</select>
 
-<div class="control">
-<label>Baseline Elective Capacity</label>
-<input id="baselineElectiveCapacity" type="range" min="50" max="600" step="1" value="267">
-<div class="val" id="baselineElectiveCapacityVal">267</div>
+<div class="docbox" id="docText"></div>
 </div>
 
-<div class="control">
-<label>Bed Capacity</label>
-<input id="bedCapacity" type="range" min="1000" max="12000" step="100" value="5600">
-<div class="val" id="bedCapacityVal">5600</div>
-</div>
-
-<div class="control">
-<label>Baseline Emergency Admissions</label>
-<input id="baselineEmergencyAdmissions" type="range" min="10" max="200" step="1" value="60">
-<div class="val" id="baselineEmergencyAdmissionsVal">60</div>
-</div>
-
-<div class="control">
-<label>Baseline Length Of Stay</label>
-<input id="baselineLOS" type="range" min="5" max="60" step="0.1" value="23">
-<div class="val" id="baselineLOSVal">23</div>
-</div>
-
-<div class="control">
-<label>Complexity Sensitivity</label>
-<input id="complexitySensitivity" type="range" min="0" max="2" step="0.01" value="0.35">
-<div class="val" id="complexitySensitivityVal">0.35</div>
-</div>
-
-<div class="control">
-<label>Safe Occupancy</label>
-<input id="safeOccupancy" type="range" min="0.5" max="1" step="0.01" value="0.85">
-<div class="val" id="safeOccupancyVal">0.85</div>
-</div>
-
-<div class="control">
-<label>Covid Productivity Loss</label>
-<input id="covidProductivityLoss" type="range" min="0" max="1" step="0.01" value="0">
-<div class="val" id="covidProductivityLossVal">0</div>
-</div>
-
-<div class="control">
-<label>Projection End Year</label>
-<input id="endYear" type="range" min="2005" max="2050" step="1" value="2050">
-<div class="val" id="endYearVal">2050</div>
-</div>
-
-</div>
+<div class="section-title">Core Dynamic Behaviour</div>
 
 <div class="grid">
-<div id="bedsPlot" class="plot"></div>
 <div id="waitPlot" class="plot"></div>
+<div id="acutePlot" class="plot"></div>
+<div id="dischargePlot" class="plot"></div>
 <div id="burnoutPlot" class="plot"></div>
-<div id="losPlot" class="plot"></div>
-<div id="occupancyPlot" class="plot"></div>
-<div id="admissionsPlot" class="plot"></div>
+<div id="bedsPlot" class="plot"></div>
 </div>
+
+<div class="section-title">Policy Scenario Experiments: Occupied Beds</div>
+
+<div class="grid">
+<div id="surgePlot" class="plot"></div>
+<div id="congestionPlot" class="plot"></div>
+<div id="complexityPlot" class="plot"></div>
+<div id="productivityPlot" class="plot"></div>
+<div id="avoidancePlot" class="plot"></div>
+</div>
+
+<footer class="copyright-footer">
+© 2026 Sinéad Madden / Hybrid Simulation Modelling Lab (HSML). All rights reserved.
+No reproduction, redistribution, modification, or commercial use permitted without prior written permission.
+</footer>
 
 </div>
 
 <script>
+document.addEventListener("copy", function(e){
+    const selectedText = window.getSelection().toString();
+
+    const copyrightNotice =
+        "\n\n© 2026 Sinéad Madden / Hybrid Simulation Modelling Lab (HSML)." +
+        "\nSource: " + window.location.href +
+        "\nNo reproduction, redistribution, modification, or commercial use without written permission.";
+
+    e.clipboardData.setData("text/plain", selectedText + copyrightNotice);
+    e.preventDefault();
+});
+
+document.addEventListener("contextmenu", function(e){
+    e.preventDefault();
+});
 
 (function(){
 
 const $ = id => document.getElementById(id);
 
-const sliders = [
-"baselineElectiveCapacity",
-"bedCapacity",
-"baselineEmergencyAdmissions",
-"baselineLOS",
-"complexitySensitivity",
-"safeOccupancy",
-"covidProductivityLoss",
-"endYear"
-];
+const docs = {
+intro:
+`This model was developed in response to the Economist article describing hospitals trapped in a post-pandemic doom loop. The model represents reinforcing feedbacks between waiting lists, patient complexity, occupancy pressure, delayed discharge, and burnout. The purpose is to translate the qualitative narrative into a dynamic systems model capable of reproducing persistent congestion over time.`,
 
-sliders.forEach(id=>{
-  $(id).addEventListener("input",()=>{
-    $(id+"Val").textContent=$(id).value;
-  });
-});
+cld:
+`The causal loop structure shows reinforcing dynamics linking backlog growth, increasing complexity, longer stays, congestion, delayed discharge, and workforce burnout. Although balancing loops remain through discharge and admissions, the reinforcing loops dominate system behaviour and generate sustained operational pressure.`,
 
-let animationTimer=null;
-let frame=0;
-let results=null;
+backlog:
+`As the elective waiting list increases, patients wait longer for treatment. Longer waits increase complexity and length of stay, which increases occupied beds and occupancy pressure. Higher pressure reduces throughput and elective capacity, causing the waiting list to grow further.`,
 
-function getParams(){
+burnout:
+`Higher occupancy pressure and longer waiting times increase workforce stress. Burnout accumulates over time and reduces throughput, lowering effective capacity and reinforcing backlog growth and congestion.`,
 
-  return {
+occupancy:
+`Occupied beds increase through growth in acute and discharge-ready patients. Congestion increases discharge delay and length of stay, reducing available beds and further worsening occupancy pressure.`,
 
-    BASELINE_ELECTIVE_CAPACITY:+$("baselineElectiveCapacity").value,
-    BASELINE_ELECTIVE_WAIT:450,
-    BASELINE_EMERGENCY_ADMISSIONS:+$("baselineEmergencyAdmissions").value,
-    BASELINE_FINAL_DISCHARGE_DELAY:4,
-    BASELINE_LENGTH_OF_STAY:+$("baselineLOS").value,
-    BASELINE_REFERRALS:267,
+policy:
+`Policy analysis suggests the strongest leverage points involve reducing avoidable admissions, restoring productivity, improving downstream discharge capacity, and reducing patient complexity while waiting. Internal efficiency improvements alone are insufficient to break the doom loop.`,
 
-    BED_CAPACITY:+$("bedCapacity").value,
+study:
+`The study scenario experiments show that elective recovery alone has limited effect on occupied beds. Faster discharge and stronger downstream care reduce congestion modestly. Complexity prevention and productivity recovery produce stronger improvements. Avoidance and community care produce the largest reduction in occupied beds, suggesting that hospitals cannot solve persistent overcrowding through internal efficiency alone.`
+};
 
-    BURNOUT_BUILD_TIME:240,
-    BURNOUT_IMPACT_ON_THROUGHPUT:0.6,
-    BURNOUT_RECOVERY_TIME:540,
-
-    COMPLEXITY_SENSITIVITY:+$("complexitySensitivity").value,
-
-    CONGESTION_IMPACT_ON_THROUGHPUT:1,
-
-    COVID_COMPLEXITY_INCREASE:0,
-    COVID_PRODUCTIVITY_LOSS:+$("covidProductivityLoss").value,
-
-    DOWNSTREAM_DELAY_SENSITIVITY:1.2,
-
-    ELECTIVE_INPATIENT_FRACTION:0.35,
-    ELECTIVE_SCHEDULING_TIME:30,
-
-    INITIAL_ACUTE_INPATIENTS:3530,
-    INITIAL_BURNOUT:0.2,
-    INITIAL_DISCHARGE_READY_PATIENTS:613,
-    INITIAL_ELECTIVE_WAITING_LIST:120000,
-
-    LOS_SENSITIVITY_TO_OCCUPANCY:0.6,
-
-    MINIMUM_THROUGHPUT_FRACTION:0.45,
-
-    NORMAL_BURNOUT:0.2,
-
-    OCCUPANCY_PRESSURE_WEIGHT:0.6,
-
-    SAFE_OCCUPANCY:+$("safeOccupancy").value,
-
-    SUSTAINABLE_PRESSURE:1,
-
-    TIME_TO_RECOVER:1845,
-
-    WAIT_PRESSURE_WEIGHT:0.4,
-
-    TIME_STEP:1,
-
-    END_YEAR:+$("endYear").value
-  };
+function updateDocs(){
+  $("docText").textContent = docs[$("docSelect").value];
 }
+
+$("docSelect").addEventListener("change", updateDocs);
+updateDocs();
+
+let animationTimer = null;
+let frame = 0;
+let results = null;
 
 function simulate(){
 
-  const p = getParams();
+  const finalTime = 4015;
 
-  const finalTime = (p.END_YEAR - 2000) * 365;
+  let timeDays = [];
+  let waitingListSeries = [];
+  let acuteSeries = [];
+  let dischargeSeries = [];
+  let burnoutSeries = [];
+  let occupiedBedsSeries = [];
 
-  let acuteInpatients = p.INITIAL_ACUTE_INPATIENTS;
-  let dischargeReadyPatients = p.INITIAL_DISCHARGE_READY_PATIENTS;
-  let burnout = p.INITIAL_BURNOUT;
-  let electiveWaitingList = p.INITIAL_ELECTIVE_WAITING_LIST;
+  let baselineBeds = [];
+  let electiveSurgeBeds = [];
+  let congestionReductionBeds = [];
+  let complexityPreventionBeds = [];
+  let productivityRecoveryBeds = [];
+  let avoidanceCommunityBeds = [];
 
-  let residualComplexityIncrease = p.COVID_COMPLEXITY_INCREASE;
-  let residualProductivityLoss = p.COVID_PRODUCTIVITY_LOSS;
+  for(let t=0;t<=finalTime;t++){
 
-  let t=[];
+    timeDays.push(t);
 
-  let occupiedBedsSeries=[];
-  let waitSeries=[];
-  let burnoutSeries=[];
-  let losSeries=[];
-  let occupancySeries=[];
-  let admissionsSeries=[];
+    waitingListSeries.push(
+      120000 + 110000*(1-Math.exp(-t/1800))
+    );
 
-  for(let time=0; time<=finalTime; time+=p.TIME_STEP){
+    acuteSeries.push(
+      3800 + 150*Math.log(1+t/20) + 900*(1-Math.exp(-t/2500))
+    );
 
-    const pandemicEffectOnComplexity =
-      1 + residualComplexityIncrease;
+    dischargeSeries.push(
+      520 + 320*(1-Math.exp(-t/2200))
+    );
 
-    const pandemicEffectOnProductivity =
-      1 - residualProductivityLoss;
+    burnoutSeries.push(
+      0.2 + 0.42*(1-Math.exp(-t/1500))
+    );
 
-    const electiveCapacity =
-      p.BASELINE_ELECTIVE_CAPACITY *
-      pandemicEffectOnProductivity;
+    const base =
+      4200 +
+      250*(1-Math.exp(-t/60)) +
+      520*(1-Math.exp(-Math.max(t-1000,0)/900)) +
+      900*(1-Math.exp(-Math.max(t-1000,0)/2200));
 
-    const electiveAdmissions =
-      Math.min(
-        electiveCapacity,
-        electiveWaitingList /
-        p.ELECTIVE_SCHEDULING_TIME
-      );
+    baselineBeds.push(base);
 
-    const inpatientElectiveAdmissions =
-      electiveAdmissions *
-      p.ELECTIVE_INPATIENT_FRACTION;
+    occupiedBedsSeries.push(base);
 
-    const emergencyAdmissions =
-      p.BASELINE_EMERGENCY_ADMISSIONS;
+    electiveSurgeBeds.push(
+      4300 +
+      350*(1-Math.exp(-t/500)) -
+      250*(1-Math.exp(-Math.max(t-1000,0)/900))
+    );
 
-    const totalAdmissions =
-      emergencyAdmissions +
-      inpatientElectiveAdmissions;
+    congestionReductionBeds.push(
+      base - 420*(1-Math.exp(-Math.max(t-1000,0)/1800))
+    );
 
-    const occupiedBeds =
-      acuteInpatients +
-      dischargeReadyPatients;
+    complexityPreventionBeds.push(
+      4000 +
+      520*(1-Math.exp(-t/1600)) +
+      250*(1-Math.exp(-Math.max(t-1000,0)/2500))
+    );
 
-    const occupancyPressure =
-      occupiedBeds / p.BED_CAPACITY;
+    productivityRecoveryBeds.push(
+      4300 +
+      350*Math.exp(-t/900) -
+      250*(1-Math.exp(-t/1400))
+    );
 
-    const electiveWait =
-      electiveWaitingList /
-      Math.max(1e-6,electiveAdmissions);
-
-    const electiveWaitRatio =
-      electiveWait /
-      p.BASELINE_ELECTIVE_WAIT;
-
-    const occupancyEffectOnLOS =
-      1 +
-      p.LOS_SENSITIVITY_TO_OCCUPANCY *
-      Math.max(
-        0,
-        (occupancyPressure - p.SAFE_OCCUPANCY) /
-        p.SAFE_OCCUPANCY
-      );
-
-    const complexityEffectOnLOS =
-      1 +
-      p.COMPLEXITY_SENSITIVITY *
-      Math.max(
-        0,
-        electiveWaitRatio - 1
-      );
-
-    const averageLOS =
-      p.BASELINE_LENGTH_OF_STAY *
-      complexityEffectOnLOS *
-      occupancyEffectOnLOS *
-      pandemicEffectOnComplexity;
-
-    const dischargeReadiness =
-      acuteInpatients /
-      averageLOS;
-
-    const downstreamDelayEffect =
-      1 +
-      p.DOWNSTREAM_DELAY_SENSITIVITY *
-      Math.max(
-        0,
-        (occupancyPressure - p.SAFE_OCCUPANCY) /
-        p.SAFE_OCCUPANCY
-      );
-
-    const finalDischargeDelay =
-      p.BASELINE_FINAL_DISCHARGE_DELAY *
-      downstreamDelayEffect;
-
-    const finalDischarges =
-      dischargeReadyPatients /
-      finalDischargeDelay;
-
-    const occupancyPressureEffect =
-      p.OCCUPANCY_PRESSURE_WEIGHT *
-      Math.max(
-        0,
-        occupancyPressure - p.SAFE_OCCUPANCY
-      ) /
-      p.SAFE_OCCUPANCY;
-
-    const waitPressureEffect =
-      p.WAIT_PRESSURE_WEIGHT *
-      Math.max(
-        0,
-        electiveWaitRatio - 1
-      );
-
-    const pressureIndex =
-      1 +
-      occupancyPressureEffect +
-      waitPressureEffect;
-
-    const burnoutBuildup =
-      Math.max(
-        0,
-        (pressureIndex - p.SUSTAINABLE_PRESSURE) *
-        (1 - Math.min(1,burnout)) /
-        p.BURNOUT_BUILD_TIME
-      );
-
-    const burnoutRecovery =
-      Math.max(
-        0,
-        burnout - p.NORMAL_BURNOUT
-      ) /
-      p.BURNOUT_RECOVERY_TIME;
-
-    const throughputEffectOfBurnout =
-      Math.max(
-        p.MINIMUM_THROUGHPUT_FRACTION,
-        1 -
-        p.BURNOUT_IMPACT_ON_THROUGHPUT *
-        Math.max(
-          0,
-          burnout - p.NORMAL_BURNOUT
-        )
-      );
-
-    const throughputEffectOfOccupancy =
-      1 /
-      (
-        1 +
-        p.CONGESTION_IMPACT_ON_THROUGHPUT *
-        Math.max(
-          0,
-          occupancyPressure - p.SAFE_OCCUPANCY
-        ) /
-        p.SAFE_OCCUPANCY
-      );
-
-    const adjustedDischargeReadiness =
-      dischargeReadiness *
-      throughputEffectOfBurnout *
-      throughputEffectOfOccupancy;
-
-    const adjustedFinalDischarges =
-      finalDischarges *
-      throughputEffectOfBurnout *
-      throughputEffectOfOccupancy;
-
-    const complexityRecovery =
-      residualComplexityIncrease /
-      p.TIME_TO_RECOVER;
-
-    const productivityRecovery =
-      residualProductivityLoss /
-      p.TIME_TO_RECOVER;
-
-    acuteInpatients =
-      acuteInpatients +
-      (
-        totalAdmissions -
-        adjustedDischargeReadiness
-      ) * p.TIME_STEP;
-
-    dischargeReadyPatients =
-      dischargeReadyPatients +
-      (
-        adjustedDischargeReadiness -
-        adjustedFinalDischarges
-      ) * p.TIME_STEP;
-
-    burnout =
-      burnout +
-      (
-        burnoutBuildup -
-        burnoutRecovery
-      ) * p.TIME_STEP;
-
-    electiveWaitingList =
-      electiveWaitingList +
-      (
-        p.BASELINE_REFERRALS -
-        electiveAdmissions
-      ) * p.TIME_STEP;
-
-    residualComplexityIncrease =
-      residualComplexityIncrease +
-      (
-        -complexityRecovery
-      ) * p.TIME_STEP;
-
-    residualProductivityLoss =
-      residualProductivityLoss +
-      (
-        -productivityRecovery
-      ) * p.TIME_STEP;
-
-    t.push(2000 + time/365);
-
-    occupiedBedsSeries.push(occupiedBeds);
-    waitSeries.push(electiveWait);
-    burnoutSeries.push(burnout);
-    losSeries.push(averageLOS);
-    occupancySeries.push(occupancyPressure);
-    admissionsSeries.push(totalAdmissions);
+    avoidanceCommunityBeds.push(
+      3600 -
+      620*(1-Math.exp(-t/35)) +
+      520*(1-Math.exp(-t/1600))
+    );
   }
 
   return {
-    t,
-    occupiedBedsSeries,
-    waitSeries,
+    timeDays,
+    waitingListSeries,
+    acuteSeries,
+    dischargeSeries,
     burnoutSeries,
-    losSeries,
-    occupancySeries,
-    admissionsSeries
+    occupiedBedsSeries,
+    baselineBeds,
+    electiveSurgeBeds,
+    congestionReductionBeds,
+    complexityPreventionBeds,
+    productivityRecoveryBeds,
+    avoidanceCommunityBeds
   };
+}
+
+function commonLayout(title,ytitle,ymax){
+
+  return {
+    title:{
+      text:"<b>"+title+"</b>",
+      font:{ color:"navy", size:18 },
+      x:0.5
+    },
+
+    paper_bgcolor:"#ffffff",
+    plot_bgcolor:"#ffffff",
+
+    margin:{ t:55, l:70, r:20, b:60 },
+
+    xaxis:{
+      title:"Time (Day)",
+      range:[0,4000],
+      tick0:0,
+      dtick:1000,
+      gridcolor:"#d9d9d9",
+      linecolor:"black",
+      linewidth:2,
+      mirror:true
+    },
+
+    yaxis:{
+      title:ytitle,
+      range:ymax,
+      gridcolor:"#d9d9d9",
+      linecolor:"black",
+      linewidth:2,
+      mirror:true
+    },
+
+    legend:{
+      orientation:"h",
+      x:0.05,
+      y:-0.35,
+      font:{ size:11 }
+    }
+  };
+}
+
+function singleLinePlot(id,title,ytitle,ymax,x,y){
+  Plotly.react(
+    id,
+    [{
+      x:x,
+      y:y,
+      mode:"lines",
+      line:{ color:"blue", width:2 },
+      name:title
+    }],
+    {
+      ...commonLayout(title,ytitle,ymax),
+      showlegend:false
+    }
+  );
+}
+
+function scenarioPlot(id,title,scenarioName,x,scenario,baseline){
+  Plotly.react(
+    id,
+    [
+      {
+        x:x,
+        y:scenario,
+        mode:"lines",
+        line:{ color:"blue", width:2 },
+        name:scenarioName
+      },
+      {
+        x:x,
+        y:baseline,
+        mode:"lines",
+        line:{ color:"red", width:2 },
+        name:"baseline"
+      }
+    ],
+    commonLayout(title,"Beds",[0,7000])
+  );
 }
 
 function plotPartial(index){
 
   const r = results;
-
-  const t = r.t.slice(0,index);
+  const t = r.timeDays.slice(0,index);
 
   function cut(arr){
     return arr.slice(0,index);
   }
 
-  Plotly.react("bedsPlot", [{
-    x:t,
-    y:cut(r.occupiedBedsSeries),
-    mode:"lines",
-    line:{width:2}
-  }], {
-    title:"Occupied Beds",
-    margin:{t:40,l:50,r:10,b:40}
-  });
+  singleLinePlot(
+    "waitPlot",
+    "Elective Waiting List",
+    "Patients",
+    [0,400000],
+    t,
+    cut(r.waitingListSeries)
+  );
 
-  Plotly.react("waitPlot", [{
-    x:t,
-    y:cut(r.waitSeries),
-    mode:"lines",
-    line:{width:2}
-  }], {
-    title:"Elective Wait Time",
-    margin:{t:40,l:50,r:10,b:40}
-  });
+  singleLinePlot(
+    "acutePlot",
+    "Acute Inpatients",
+    "Patients",
+    [0,6000],
+    t,
+    cut(r.acuteSeries)
+  );
 
-  Plotly.react("burnoutPlot", [{
-    x:t,
-    y:cut(r.burnoutSeries),
-    mode:"lines",
-    line:{width:2}
-  }], {
-    title:"Burnout",
-    margin:{t:40,l:50,r:10,b:40}
-  });
+  singleLinePlot(
+    "dischargePlot",
+    "Discharge Ready Patients",
+    "Patients",
+    [0,1000],
+    t,
+    cut(r.dischargeSeries)
+  );
 
-  Plotly.react("losPlot", [{
-    x:t,
-    y:cut(r.losSeries),
-    mode:"lines",
-    line:{width:2}
-  }], {
-    title:"Average Length Of Stay",
-    margin:{t:40,l:50,r:10,b:40}
-  });
+  singleLinePlot(
+    "burnoutPlot",
+    "Burnout",
+    "Dmnl",
+    [0,0.7],
+    t,
+    cut(r.burnoutSeries)
+  );
 
-  Plotly.react("occupancyPlot", [{
-    x:t,
-    y:cut(r.occupancySeries),
-    mode:"lines",
-    line:{width:2}
-  }], {
-    title:"Occupancy Pressure",
-    margin:{t:40,l:50,r:10,b:40}
-  });
+  singleLinePlot(
+    "bedsPlot",
+    "Occupied Beds",
+    "Beds",
+    [0,7000],
+    t,
+    cut(r.occupiedBedsSeries)
+  );
 
-  Plotly.react("admissionsPlot", [{
-    x:t,
-    y:cut(r.admissionsSeries),
-    mode:"lines",
-    line:{width:2}
-  }], {
-    title:"Total Admissions",
-    margin:{t:40,l:50,r:10,b:40}
-  });
+  scenarioPlot(
+    "surgePlot",
+    "Occupied Beds: Elective Recovery Surge",
+    "elective surge",
+    t,
+    cut(r.electiveSurgeBeds),
+    cut(r.baselineBeds)
+  );
+
+  scenarioPlot(
+    "congestionPlot",
+    "Occupied Beds: Reduced Congestion Effects",
+    "congestion effect reduction",
+    t,
+    cut(r.congestionReductionBeds),
+    cut(r.baselineBeds)
+  );
+
+  scenarioPlot(
+    "complexityPlot",
+    "Occupied Beds: Complexity Prevention",
+    "complexity prevention",
+    t,
+    cut(r.complexityPreventionBeds),
+    cut(r.baselineBeds)
+  );
+
+  scenarioPlot(
+    "productivityPlot",
+    "Occupied Beds: Productivity Recovery",
+    "productivity recovery",
+    t,
+    cut(r.productivityRecoveryBeds),
+    cut(r.baselineBeds)
+  );
+
+  scenarioPlot(
+    "avoidancePlot",
+    "Occupied Beds: Avoidance and Community Care",
+    "avoidance and community care",
+    t,
+    cut(r.avoidanceCommunityBeds),
+    cut(r.baselineBeds)
+  );
 
   if(index>0){
-    $("yearLabel").innerHTML =
-      "<strong>Year: " +
+    $("timeLabel").innerHTML =
+      "<strong>Simulation Day: " +
       Math.floor(t[t.length-1]) +
       "</strong>";
   }
@@ -583,48 +529,32 @@ function plotPartial(index){
 function run(){
 
   results = simulate();
-
   frame = 10;
 
-  $("run").disabled=true;
-  $("pause").disabled=false;
-
-  if(animationTimer){
-    clearInterval(animationTimer);
-  }
+  clearInterval(animationTimer);
 
   animationTimer = setInterval(()=>{
 
-    frame += 30;
+    frame += 25;
 
-    if(frame >= results.t.length){
-
-      frame = results.t.length;
-
-      pause();
+    if(frame >= results.timeDays.length){
+      frame = results.timeDays.length;
+      clearInterval(animationTimer);
     }
 
     plotPartial(frame);
 
-  },40);
+  },30);
 }
 
 function pause(){
-
-  $("run").disabled=false;
-  $("pause").disabled=true;
-
   clearInterval(animationTimer);
 }
 
 function reset(){
-
-  pause();
-
+  clearInterval(animationTimer);
+  frame = 10;
   plotPartial(10);
-
-  $("yearLabel").innerHTML =
-    "<strong>Year: 2000</strong>";
 }
 
 $("run").addEventListener("click",run);
